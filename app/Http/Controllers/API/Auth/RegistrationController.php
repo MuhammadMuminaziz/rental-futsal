@@ -5,6 +5,8 @@ namespace App\Http\Controllers\API\Auth;
 use App\Http\Controllers\BaseController;
 use App\Http\Resources\UserResource;
 use App\Models\User;
+use App\Notifications\NewMessage;
+use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -29,10 +31,9 @@ class RegistrationController extends BaseController
         unset($data['password_confirmation']);
         $data['role_id'] = 4;
         $user = User::create($data);
-
-        Auth::login($user);
+        event(new Registered($user));
         $token = $user->createToken($user->name)->plainTextToken;
-        return $this->sendResponse("Success", new UserResource($user), token: $token);
+        return $this->sendResponse("Registration success, check your email to verification!", new UserResource($user), token: $token);
     }
 
     public function changePassword(Request $request)

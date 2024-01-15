@@ -72,7 +72,42 @@ class UserController extends BaseController
      */
     public function destroy(string $id)
     {
-        //
+        $futsal =  $this->getUser($id);
+        if ($futsal->trashed()) {
+            $futsal->forceDelete();
+        } else {
+            // Soft delete
+            $futsal->delete();
+        }
+        return $this->sendResponse("Success");
+    }
+
+    public function userTrashed()
+    {
+        $user = User::onlyTrashed()->get();
+        return $this->sendResponse("Success", UserResource::collection($user));
+    }
+
+    public function restore(string $id)
+    {
+        $user =  $this->getUserTrashed($id);
+        $user->restore();
+        return $this->sendResponse("Success", new UserResource($user));
+    }
+
+    public function restoreAll()
+    {
+        $user = User::onlyTrashed();
+        throw_if($user->count() == 0, new ModelNotFoundException("User Not Found", 404));
+        $user->restore();
+        return $this->sendResponse("Success Restore All Data");
+    }
+
+    public function getUserTrashed($id): User
+    {
+        $user = User::onlyTrashed()->where('id', $id)->first();
+        throw_if($user == null, new ModelNotFoundException("User Not Found", 404));
+        return $user;
     }
 
     public function getUser($id)
@@ -81,7 +116,7 @@ class UserController extends BaseController
         if (empty($user)) {
             $user = Owner::find($id);
         }
-        throw_if($user == null, new ModelNotFoundException($user));
+        throw_if($user == null, new ModelNotFoundException("User Not Found", 404));
         return $user;
     }
 

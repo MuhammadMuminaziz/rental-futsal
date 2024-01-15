@@ -15,12 +15,14 @@ class UserResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
+            'id' => $this->id,
             'role' => $this->role->name ?? $this->role_id,
-            // 'team' => $this->whenNotNull($this->team, function () {
-            //     return [
-            //         'name' => $this->team->name
-            //     ];
-            // }),
+            'team' => [
+                'id' => $this->team->id ?? null,
+                'name' => $this->team->name ?? null,
+                'description' => $this->team->description ?? null,
+                'avatar' => $this->avatar != null ? asset('futsal/avatar/') . "/" . $this->avatar : $this->avatar,
+            ],
             'name' => $this->name,
             'slug' => $this->slug,
             'email' => $this->email,

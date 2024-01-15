@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Review;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -23,10 +24,12 @@ class FutsalResource extends JsonResource
             ],
             'name' => $this->name,
             'description' => $this->description,
+            'facilities' => $this->facilities,
+            'cancellation' => $this->cancellation,
             'whatsapp' => $this->whatsapp,
             'facebook' => $this->facebook,
             'instagram' => $this->instagram,
-            'avatar' => $this->avatar,
+            'avatar' => $this->avatar != null ? asset('futsal/avatar/') . "/" . $this->avatar : $this->avatar,
             'rating' => $this->rating,
             'is_active' => $this->isActive ? true : false,
             'address' => $this->address,

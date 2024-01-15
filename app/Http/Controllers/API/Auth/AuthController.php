@@ -29,14 +29,14 @@ class AuthController extends BaseController
             $user = Auth::guard('user')->user();
             return $this->authenticateUser($user);
         } else {
-            return $this->sendError('Kredensial ini tidak sesuai dengan data kami.', code: 401);
+            return $this->sendError('This credentials do not match our records', code: 401);
         }
     }
 
     public function logout(Request $request)
     {
         $request->user()->currentAccessToken()->delete();
-        return $this->sendResponse('Logout berhasil');
+        return $this->sendResponse('Success');
     }
 
     public function refresh(Request $request)
@@ -50,6 +50,9 @@ class AuthController extends BaseController
     private function authenticateUser($user)
     {
         $token = $user->createToken($user->name)->plainTextToken;
+        if (!$user->hasVerifiedEmail()) {
+            return $this->sendError('Your email address is not verified.');
+        }
         return $this->sendResponse('Success', new UserResource($user), token: $token);
     }
 }

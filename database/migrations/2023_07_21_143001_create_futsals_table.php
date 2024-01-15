@@ -14,9 +14,10 @@ return new class extends Migration
         Schema::create('futsals', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->foreignId('user_id');
-            $table->foreignId('facility_id')->nullable();
             $table->string('name');
             $table->text('description');
+            $table->string('facilities')->nullable();
+            $table->text('cancellation');
             $table->string('whatsapp');
             $table->string('instagram')->nullable();
             $table->string('facebook')->nullable();
@@ -27,6 +28,7 @@ return new class extends Migration
             $table->double('lat')->nullable();
             $table->double('lng')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

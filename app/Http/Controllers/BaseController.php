@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class BaseController extends Controller
 {
@@ -17,7 +17,7 @@ class BaseController extends Controller
             $response['data'] = $result;
         }
 
-        if(!empty($token)){
+        if (!empty($token)) {
             $response['token'] = $token;
         }
 
@@ -36,6 +36,62 @@ class BaseController extends Controller
         }
 
         return response()->json($response, $code);
+    }
+
+    private function sendData($success, $data = [])
+    {
+        $response = [
+            'success' => $success,
+            'data' => $data
+        ];
+        return $response;
+    }
+
+    public function baseStore($request, $validData, $validasi, $message, $user = null)
+    {
+        $data = $request->only($validData);
+        $validator = Validator::make($data, $validasi, $message);
+        if ($validator->fails()) {
+            return $this->sendData(false, $validator->errors());
+        }
+
+        if ($request->hasFile('avatar')) {
+            if (!empty($user)) {
+                if (!empty($user->avatar)) {
+                    unlink('futsal/avatar/' . $user->avatar);
+                }
+            }
+            $name = rand() . time() . "." . $request->file('avatar')->getClientOriginalExtension();
+            $request->file('avatar')->move('futsal/avatar', $name);
+            $data['avatar'] = $name;
+        }
+
+        if ($request->hasFile('photo')) {
+            if (!empty($user)) {
+                if (!empty($user->photo)) {
+                    unlink('futsal/gallery/' . $user->photo);
+                }
+            }
+            $name = rand() . time() . "." . $request->file('photo')->getClientOriginalExtension();
+            $request->file('photo')->move('futsal/gallery', $name);
+            $data['photo'] = $name;
+        }
+
+        if ($request->hasFile('doc_reviews')) {
+            foreach ($request->file('doc_reviews') as $file) {
+                if (!empty($user)) {
+                    if (!empty($user->doc_reviews)) {
+                        unlink('futsal/review/' . $user->doc_reviews);
+                    }
+                }
+                $name = rand() . time() . "." . $file->getClientOriginalExtension();
+                $file->move('futsal/review', $name);
+                $doc[] = $name;
+            }
+            $data['doc_reviews'] = json_encode($doc);
+        }
+
+        return $this->sendData(true, $data);
     }
 
     protected function message()

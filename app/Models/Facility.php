@@ -10,4 +10,9 @@ class Facility extends Model
     use HasFactory;
 
     protected $guarded = [];
+
+    public function futsal()
+    {
+        return $this->belongsTo(Futsal::class);
+    }
 }
